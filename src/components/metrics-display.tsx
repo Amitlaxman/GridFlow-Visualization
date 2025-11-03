@@ -31,7 +31,7 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
                     <Icon className="h-5 w-5 text-primary mt-1" />
                     <div className="flex flex-col">
                     <span className="text-sm text-muted-foreground">{item.label}</span>
-                    <span className="text-lg font-bold font-mono text-accent-foreground">{value}</span>
+                    <span className="text-lg font-bold font-mono text-foreground">{value}</span>
                     </div>
                 </div>
             )
