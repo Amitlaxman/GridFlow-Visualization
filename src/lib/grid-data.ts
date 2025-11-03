@@ -91,7 +91,7 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     name: "Gauss-Seidel",
     description: "A simpler iterative method that is less memory-intensive than Newton-Raphson.",
     tradeoffs: "Simpler to implement and requires less memory. However, it has slower convergence, especially in large systems, and can be unstable.",
-    visualizationBehavior: "This algorithm takes many more iterations to converge. You'll see the voltages and flows change more gradually with each step. The particles move slower, representing the slower computational process.",
+    visualizationBehavior: "This algorithm takes many more iterations to converge. You'll see the voltages and flows change more gradually with each step. The particles in the lines move slower as a visual metaphor for the slower computational process of each iteration.",
     metrics: { convergenceTime: "0.78s", iterations: 12, totalPowerLoss: "2.1%", voltageDeviation: "±2.5%" },
     comparison: { speed: 4, accuracy: 6, convergence: 5, powerLoss: 5 },
     run: runGaussSeidel,
