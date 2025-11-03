@@ -59,19 +59,19 @@ export const grid: GridData = {
     { id: "L5", from: "B5", to: "B6" },
     { id: "L6", from: "B1", to: "B6" },
     { id: "L7", from: "B2", to: "B6" },
-    { id: "L8", from: "B2", to: "B5" },
+    { id: "L8", from: "B4", to: "B3" },
   ],
 };
 
-const generateFlows = (multiplier: number) => ({
-  L1: { flow: 5 * multiplier, direction: "from-to" }, // Gen B1 -> Bus B2
-  L2: { flow: 3 * multiplier, direction: "from-to" }, // Bus B2 -> Load B3
-  L3: { flow: 2 * multiplier, direction: "from-to" }, // Bus B2 -> Gen B4 (can be bidirectional)
-  L4: { flow: 6 * multiplier, direction: "from-to" }, // Gen B4 -> Load B5
-  L5: { flow: 4 * multiplier, direction: "from-to" }, // Bus B5 -> Bus B6
-  L6: { flow: 3 * multiplier, direction: "from-to" }, // Gen B1 -> Bus B6
-  L7: { flow: 2 * multiplier, direction: "from-to" }, // Bus B2 -> Bus B6
-  L8: { flow: 1 * multiplier, direction: "from-to" }, // Bus B2 -> Load B5
+const generateFlows = (multiplier: number, forward: boolean = true) => ({
+    L1: { flow: 5 * multiplier, direction: "from-to" as const },
+    L2: { flow: 3 * multiplier, direction: "from-to" as const },
+    L3: { flow: 2 * multiplier, direction: "from-to" as const },
+    L4: { flow: 6 * multiplier, direction: "from-to" as const },
+    L5: { flow: 4 * multiplier, direction: forward ? "from-to" : "to-from" as const },
+    L6: { flow: 3 * multiplier, direction: "from-to" as const },
+    L7: { flow: 2 * multiplier, direction: forward ? "from-to" : "to-from" as const },
+    L8: { flow: 1 * multiplier, direction: "from-to" as const },
 });
 
 
@@ -118,7 +118,7 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     metrics: { convergenceTime: "0.01s", iterations: 1, totalPowerLoss: "N/A", voltageDeviation: "N/A" },
     comparison: { speed: 10, accuracy: 2, convergence: 10, powerLoss: 10 },
     simulationSteps: [
-      { busVoltages: generateVoltages(1.0, 0), lineFlows: generateFlows(1.5) },
+      { busVoltages: generateVoltages(1.0, 0), lineFlows: generateFlows(1.5, false) },
     ],
   },
   "fast-decoupled": {
@@ -130,7 +130,7 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     comparison: { speed: 7, accuracy: 7, convergence: 8, powerLoss: 6 },
     simulationSteps: Array.from({ length: 5 }, (_, i) => ({
       busVoltages: generateVoltages(1.03 - i * 0.004, 0.06 - i * 0.01),
-      lineFlows: generateFlows(0.9 + i * 0.06),
+      lineFlows: generateFlows(0.9 + i * 0.06, false),
     })),
   },
 };
@@ -147,12 +147,7 @@ export const comparisonData = Object.keys(metricToKeyMap).map(metric => {
   const item: { metric: string; [key: string]: string | number } = { metric };
   for (const algoKey in algorithms) {
     const algoData = algorithms[algoKey];
-    let name = algoData.name.replace(/-/g, "");
-    if (name === "DCPowerFlow") name = "DCPowerFlow";
-    else if (name === "FastDecoupled") name = "FastDecoupled";
-    else if (name === "NewtonRaphson") name = "NewtonRaphson";
-    else if (name === "GaussSeidel") name = "GaussSeidel";
-    
+    let name = algoData.name.replace(/-/g, "").replace(/\s/g, '');
     item[name] = algoData.comparison[key as keyof AlgorithmData['comparison']];
   }
   return item;
