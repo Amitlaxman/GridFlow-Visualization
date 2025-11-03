@@ -4,12 +4,15 @@ export type Bus = {
   x: number;
   y: number;
   type: "generator" | "load" | "bus";
+  voltage?: number; // Base voltage if known
+  power?: number;   // Power injection (positive for generator, negative for load)
 };
 
 export type Line = {
   id: string;
   from: string;
   to: string;
+  impedance: number; // Simplified impedance (resistance)
 };
 
 export type GridData = {
@@ -18,9 +21,16 @@ export type GridData = {
 };
 
 export type AlgorithmState = {
-  busVoltages: { [busId: string]: number };
-  lineFlows: { [lineId: string]: { flow: number; direction: "from-to" | "to-from" } };
+  busVoltages: { [busId:string]: number };
+  lineFlows: { [lineId:string]: { flow: number; direction: "from-to" | "to-from" } };
+  isConverged: boolean;
+  iteration: number;
 };
+
+export type AlgorithmImplementation = (
+  grid: GridData,
+  currentState: AlgorithmState | null
+) => AlgorithmState;
 
 export type AlgorithmData = {
   name: string;
@@ -39,50 +49,32 @@ export type AlgorithmData = {
     convergence: number;
     powerLoss: number;
   };
-  simulationSteps: AlgorithmState[];
+  run: AlgorithmImplementation;
+  maxIterations: number;
 };
+
+import { runGaussSeidel, runDCPowerFlow, runStub } from './algorithms';
 
 export const grid: GridData = {
   buses: [
-    { id: "B1", x: 100, y: 200, type: "generator" },
+    { id: "B1", x: 100, y: 200, type: "generator", voltage: 1.05, power: 1.5 },
     { id: "B2", x: 250, y: 100, type: "bus" },
-    { id: "B3", x: 400, y: 200, type: "load" },
-    { id: "B4", x: 550, y: 100, type: "generator" },
-    { id: "B5", x: 400, y: 400, type: "load" },
+    { id: "B3", x: 400, y: 200, type: "load", power: -1.0 },
+    { id: "B4", x: 550, y: 100, type: "generator", voltage: 1.0, power: 1.0 },
+    { id: "B5", x: 400, y: 400, type: "load", power: -0.8 },
     { id: "B6", x: 250, y: 500, type: "bus" },
   ],
   lines: [
-    { id: "L1", from: "B1", to: "B2" },
-    { id: "L2", from: "B2", to: "B3" },
-    { id: "L3", from: "B2", to: "B4" },
-    { id: "L4", from: "B4", to: "B5" },
-    { id: "L5", from: "B5", to: "B6" },
-    { id: "L6", from: "B1", to: "B6" },
-    { id: "L7", from: "B2", to: "B6" },
-    { id: "L8", from: "B4", to: "B3" },
+    { id: "L1", from: "B1", to: "B2", impedance: 0.1 },
+    { id: "L2", from: "B2", to: "B3", impedance: 0.12 },
+    { id: "L3", from: "B2", to: "B4", impedance: 0.08 },
+    { id: "L4", from: "B4", to: "B5", impedance: 0.09 },
+    { id: "L5", from: "B5", to: "B6", impedance: 0.11 },
+    { id: "L6", from: "B1", to: "B6", impedance: 0.15 },
+    { id: "L7", from: "B2", to: "B6", impedance: 0.1 },
+    { id: "L8", from: "B4", to: "B3", impedance: 0.13 },
   ],
 };
-
-const generateFlows = (multiplier: number, forward: boolean = true) => ({
-    L1: { flow: 5 * multiplier, direction: "from-to" as const },
-    L2: { flow: 3 * multiplier, direction: "from-to" as const },
-    L3: { flow: 2 * multiplier, direction: "from-to" as const },
-    L4: { flow: 6 * multiplier, direction: "from-to" as const },
-    L5: { flow: 4 * multiplier, direction: forward ? "from-to" : "to-from" as const },
-    L6: { flow: 3 * multiplier, direction: "from-to" as const },
-    L7: { flow: 2 * multiplier, direction: forward ? "from-to" : "to-from" as const },
-    L8: { flow: 1 * multiplier, direction: "from-to" as const },
-});
-
-
-const generateVoltages = (base: number, variance: number) => ({
-  B1: base + variance,
-  B2: base - variance,
-  B3: base,
-  B4: base + variance * 2,
-  B5: base - variance,
-  B6: base,
-});
 
 export const algorithms: { [key: string]: AlgorithmData } = {
   "newton-raphson": {
@@ -92,11 +84,8 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     visualizationBehavior: "Notice the smooth and rapid stabilization of voltages and flows. The few iterations reflect its efficiency. The particle speed is high, and line widths change decisively as it quickly finds the solution.",
     metrics: { convergenceTime: "0.15s", iterations: 3, totalPowerLoss: "1.8%", voltageDeviation: "±1.5%" },
     comparison: { speed: 8, accuracy: 9, convergence: 7, powerLoss: 7 },
-    simulationSteps: [
-      { busVoltages: generateVoltages(1.0, 0.05), lineFlows: generateFlows(1) },
-      { busVoltages: generateVoltages(1.02, 0.02), lineFlows: generateFlows(1.2) },
-      { busVoltages: generateVoltages(1.01, 0.01), lineFlows: generateFlows(1.1) },
-    ],
+    run: runStub,
+    maxIterations: 3,
   },
   "gauss-seidel": {
     name: "Gauss-Seidel",
@@ -105,10 +94,8 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     visualizationBehavior: "This algorithm takes many more iterations to converge. You'll see the voltages and flows change more gradually with each step. The particles move slower, representing the slower computational process.",
     metrics: { convergenceTime: "0.78s", iterations: 12, totalPowerLoss: "2.1%", voltageDeviation: "±2.5%" },
     comparison: { speed: 4, accuracy: 6, convergence: 5, powerLoss: 5 },
-    simulationSteps: Array.from({ length: 12 }, (_, i) => ({
-      busVoltages: generateVoltages(1.05 - i * 0.005, 0.08 - i * 0.005),
-      lineFlows: generateFlows(0.8 + i * 0.05),
-    })),
+    run: runGaussSeidel,
+    maxIterations: 15,
   },
   "dc-power-flow": {
     name: "DC Power Flow",
@@ -117,9 +104,8 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     visualizationBehavior: "This is a single-step, non-iterative approximation. The 'Iterate' button does nothing after the first click. It provides an instant but less accurate snapshot of power flows, ignoring voltage stability and losses, which is why the voltage is uniform and the 'p.u.' values are stable.",
     metrics: { convergenceTime: "0.01s", iterations: 1, totalPowerLoss: "N/A", voltageDeviation: "N/A" },
     comparison: { speed: 10, accuracy: 2, convergence: 10, powerLoss: 10 },
-    simulationSteps: [
-      { busVoltages: generateVoltages(1.0, 0), lineFlows: generateFlows(1.5, false) },
-    ],
+    run: runDCPowerFlow,
+    maxIterations: 1,
   },
   "fast-decoupled": {
     name: "Fast Decoupled",
@@ -128,10 +114,8 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     visualizationBehavior: "This is a compromise. It converges faster than Gauss-Seidel but not as quickly as Newton-Raphson. The flow animations are moderately fast, and the system stabilizes in a handful of iterations.",
     metrics: { convergenceTime: "0.25s", iterations: 5, totalPowerLoss: "1.9%", voltageDeviation: "±2.0%" },
     comparison: { speed: 7, accuracy: 7, convergence: 8, powerLoss: 6 },
-    simulationSteps: Array.from({ length: 5 }, (_, i) => ({
-      busVoltages: generateVoltages(1.03 - i * 0.004, 0.06 - i * 0.01),
-      lineFlows: generateFlows(0.9 + i * 0.06, false),
-    })),
+    run: runStub,
+    maxIterations: 5,
   },
 };
 

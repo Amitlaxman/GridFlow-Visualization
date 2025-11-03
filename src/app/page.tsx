@@ -1,28 +1,20 @@
 "use client";
-import { useState } from "react";
-import { algorithms, grid, comparisonData } from "@/lib/grid-data";
+import { useGridSimulation } from "@/hooks/use-grid-simulation";
+import { algorithms, grid } from "@/lib/grid-data";
 import { GridDisplay } from "@/components/grid-display";
 import { ControlPanel } from "@/components/control-panel";
-import { Card, CardContent } from "@/components/ui/card";
 import { Github } from "lucide-react";
 
 export default function Home() {
-  const [selectedAlgorithm, setSelectedAlgorithm] = useState(Object.keys(algorithms)[0]);
-  const [iteration, setIteration] = useState(0);
-
-  const currentAlgorithmData = algorithms[selectedAlgorithm];
-  const maxIterations = currentAlgorithmData.simulationSteps.length - 1;
-
-  const handleIterate = () => {
-    setIteration((prev) => Math.min(prev + 1, maxIterations));
-  };
-
-  const handleAlgorithmChange = (algoKey: string) => {
-    setSelectedAlgorithm(algoKey);
-    setIteration(0);
-  };
-  
-  const currentSimState = currentAlgorithmData.simulationSteps[Math.min(iteration, maxIterations)];
+  const {
+    currentSimState,
+    selectedAlgorithm,
+    iteration,
+    maxIterations,
+    handleAlgorithmChange,
+    handleIterate,
+    isRunning,
+  } = useGridSimulation();
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-background text-foreground">
@@ -31,7 +23,12 @@ export default function Home() {
           Interactive Grid Visualizer
         </h1>
       </header>
-       <a href="https://github.com/firebase/studio-extra-sauce/tree/main/apps/grid-visualizer" target="_blank" rel="noopener noreferrer" className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/30 text-primary-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+      <a
+        href="https://github.com/firebase/studio-extra-sauce/tree/main/apps/grid-visualizer"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/30 text-primary-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+      >
         <Github />
       </a>
       <main className="flex-1 flex items-center justify-center p-4">
@@ -45,6 +42,7 @@ export default function Home() {
           onIterate={handleIterate}
           iteration={iteration}
           maxIterations={maxIterations}
+          isRunning={isRunning}
         />
       </aside>
     </div>

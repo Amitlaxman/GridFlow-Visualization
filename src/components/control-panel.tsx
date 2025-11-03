@@ -2,10 +2,11 @@
 
 import type { AlgorithmData } from "@/lib/grid-data";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Loader2 } from "lucide-react";
 
 import { MetricsDisplay } from "./metrics-display";
 import { ComparisonChart } from "./comparison-chart";
@@ -19,6 +20,7 @@ type ControlPanelProps = {
   onIterate: () => void;
   iteration: number;
   maxIterations: number;
+  isRunning: boolean;
 };
 
 export function ControlPanel({
@@ -28,6 +30,7 @@ export function ControlPanel({
   onIterate,
   iteration,
   maxIterations,
+  isRunning,
 }: ControlPanelProps) {
   const currentAlgorithm = algorithms[selectedAlgorithm];
 
@@ -53,7 +56,8 @@ export function ControlPanel({
                         <h3 className="text-xl font-semibold text-primary">{currentAlgorithm.name}</h3>
                         <p className="text-sm text-muted-foreground">Iteration: {iteration} / {maxIterations}</p>
                     </div>
-                    <Button onClick={onIterate} disabled={iteration >= maxIterations}>
+                    <Button onClick={onIterate} disabled={iteration >= maxIterations || isRunning}>
+                        {isRunning && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Iterate
                     </Button>
                 </div>
