@@ -120,7 +120,7 @@ export function Recommender() {
         {recommendation && (
           <Alert className="mt-4 bg-background/50">
             <Lightbulb className="h-4 w-4 text-accent" />
-            <AlertTitle className="text-accent-foreground">Recommended: {recommendation.algorithm}</AlertTitle>
+            <AlertTitle className="text-foreground">Recommended: {recommendation.algorithm}</AlertTitle>
             <AlertDescription>{recommendation.reasoning}</AlertDescription>
           </Alert>
         )}
