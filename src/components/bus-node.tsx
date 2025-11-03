@@ -2,7 +2,6 @@
 
 import type { Bus } from "@/lib/grid-data";
 import { Zap, Factory, Cog } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 type BusNodeProps = {
   bus: Bus;
@@ -22,8 +21,8 @@ export function BusNode({ bus, voltage }: BusNodeProps) {
   return (
     <g
       transform={`translate(${bus.x}, ${bus.y})`}
-      className="transition-transform duration-500 ease-in-out hover:scale-110"
-      style={{ transformOrigin: 'center center', transformBox: 'fill-box' }}
+      className="transition-transform duration-300 ease-in-out hover:scale-110"
+      style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
     >
       <defs>
         <style>
@@ -46,15 +45,14 @@ export function BusNode({ bus, voltage }: BusNodeProps) {
         fill="hsl(var(--card))"
         stroke="hsl(var(--primary))"
         strokeWidth={2}
-        className="animate-pulse-slow"
         style={{
           animation: `pulse ${animationDuration.toFixed(2)}s ease-in-out infinite`,
-          transformOrigin: 'center center',
+          transformOrigin: 'center',
           transformBox: 'fill-box'
         }}
       />
       <Icon
-        className="text-foreground transition-colors duration-300"
+        className="text-foreground"
         x={-12}
         y={-12}
         size={24}
