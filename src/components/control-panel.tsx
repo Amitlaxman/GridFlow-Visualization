@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { MetricsDisplay } from "./metrics-display";
 import { ComparisonChart } from "./comparison-chart";
 import { Recommender } from "./recommender";
+import { ExplanationGuide } from "./explanation-guide";
 
 type ControlPanelProps = {
   algorithms: { [key: string]: AlgorithmData };
@@ -67,6 +68,8 @@ export function ControlPanel({
                 <MetricsDisplay metrics={currentAlgorithm.metrics} />
                 <Separator />
                 <ComparisonChart />
+                <Separator />
+                <ExplanationGuide />
             </div>
 
           </Tabs>
