@@ -34,9 +34,6 @@ export function BusNode({ bus, voltage }: BusNodeProps) {
                 opacity: 1;
               }
             }
-            .bus-group:hover .bus-circle {
-                transform: scale(1.1);
-            }
           `}
         </style>
       <g className="bus-group">
