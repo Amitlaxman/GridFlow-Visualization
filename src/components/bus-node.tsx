@@ -23,7 +23,7 @@ export function BusNode({ bus, voltage }: BusNodeProps) {
     <g
       transform={`translate(${bus.x}, ${bus.y})`}
       className="transition-transform duration-500 ease-in-out hover:scale-110"
-      style={{ transformOrigin: 'center', transformBox: 'fill-box' }}
+      style={{ transformOrigin: 'center center', transformBox: 'fill-box' }}
     >
       <defs>
         <style>
@@ -49,7 +49,7 @@ export function BusNode({ bus, voltage }: BusNodeProps) {
         className="animate-pulse-slow"
         style={{
           animation: `pulse ${animationDuration.toFixed(2)}s ease-in-out infinite`,
-          transformOrigin: 'center',
+          transformOrigin: 'center center',
           transformBox: 'fill-box'
         }}
       />
