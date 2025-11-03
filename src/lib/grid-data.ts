@@ -53,7 +53,7 @@ export const grid: GridData = {
   lines: [
     { id: "L1", from: "B1", to: "B2" },
     { id: "L2", from: "B2", to: "B3" },
-    { id: "L3", from: "B3", to: "B4" },
+    { id: "L3", from: "B2", to: "B4" },
     { id: "L4", from: "B4", to: "B5" },
     { id: "L5", from: "B5", to: "B6" },
     { id: "L6", from: "B6", to: "B1" },
@@ -62,16 +62,17 @@ export const grid: GridData = {
   ],
 };
 
-const generateFlows = (multiplier: number, directionSwitch: boolean) => ({
-  L1: { flow: 5 * multiplier, direction: "from-to" },
-  L2: { flow: 3 * multiplier, direction: "from-to" },
-  L3: { flow: 2 * multiplier, direction: directionSwitch ? "to-from" : "from-to" },
-  L4: { flow: 6 * multiplier, direction: "from-to" },
-  L5: { flow: 4 * multiplier, direction: "from-to" },
-  L6: { flow: 3 * multiplier, direction: "from-to" },
-  L7: { flow: 2 * multiplier, direction: directionSwitch ? "from-to" : "to-from" },
-  L8: { flow: 1 * multiplier, direction: "from-to" },
+const generateFlows = (multiplier: number) => ({
+  L1: { flow: 5 * multiplier, direction: "from-to" }, // Gen B1 -> Bus B2
+  L2: { flow: 3 * multiplier, direction: "from-to" }, // Bus B2 -> Load B3
+  L3: { flow: 2 * multiplier, direction: "to-from" }, // Gen B4 -> Bus B2
+  L4: { flow: 6 * multiplier, direction: "from-to" }, // Gen B4 -> Load B5
+  L5: { flow: 4 * multiplier, direction: "to-from" }, // Bus B6 -> Load B5
+  L6: { flow: 3 * multiplier, direction: "to-from" }, // Bus B6 -> Gen B1 (Loop)
+  L7: { flow: 2 * multiplier, direction: "from-to" }, // Bus B2 -> Bus B6
+  L8: { flow: 1 * multiplier, direction: "from-to" }, // Load B3 -> Load B5 (Inter-load)
 });
+
 
 const generateVoltages = (base: number, variance: number) => ({
   B1: base + variance,
@@ -91,9 +92,9 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     metrics: { convergenceTime: "0.15s", iterations: 3, totalPowerLoss: "1.8%", voltageDeviation: "±1.5%" },
     comparison: { speed: 8, accuracy: 9, convergence: 7, powerLoss: 7 },
     simulationSteps: [
-      { busVoltages: generateVoltages(1.0, 0.05), lineFlows: generateFlows(1, false) },
-      { busVoltages: generateVoltages(1.02, 0.02), lineFlows: generateFlows(1.2, false) },
-      { busVoltages: generateVoltages(1.01, 0.01), lineFlows: generateFlows(1.1, false) },
+      { busVoltages: generateVoltages(1.0, 0.05), lineFlows: generateFlows(1) },
+      { busVoltages: generateVoltages(1.02, 0.02), lineFlows: generateFlows(1.2) },
+      { busVoltages: generateVoltages(1.01, 0.01), lineFlows: generateFlows(1.1) },
     ],
   },
   "gauss-seidel": {
@@ -105,7 +106,7 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     comparison: { speed: 4, accuracy: 6, convergence: 5, powerLoss: 5 },
     simulationSteps: Array.from({ length: 12 }, (_, i) => ({
       busVoltages: generateVoltages(1.05 - i * 0.005, 0.08 - i * 0.005),
-      lineFlows: generateFlows(0.8 + i * 0.05, i % 3 === 0),
+      lineFlows: generateFlows(0.8 + i * 0.05),
     })),
   },
   "dc-power-flow": {
@@ -116,7 +117,7 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     metrics: { convergenceTime: "0.01s", iterations: 1, totalPowerLoss: "N/A", voltageDeviation: "N/A" },
     comparison: { speed: 10, accuracy: 2, convergence: 10, powerLoss: 10 },
     simulationSteps: [
-      { busVoltages: generateVoltages(1.0, 0), lineFlows: generateFlows(1.5, true) },
+      { busVoltages: generateVoltages(1.0, 0), lineFlows: generateFlows(1.5) },
     ],
   },
   "fast-decoupled": {
@@ -128,7 +129,7 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     comparison: { speed: 7, accuracy: 7, convergence: 8, powerLoss: 6 },
     simulationSteps: Array.from({ length: 5 }, (_, i) => ({
       busVoltages: generateVoltages(1.03 - i * 0.004, 0.06 - i * 0.01),
-      lineFlows: generateFlows(0.9 + i * 0.06, i % 2 === 0),
+      lineFlows: generateFlows(0.9 + i * 0.06),
     })),
   },
 };
@@ -142,11 +143,10 @@ const metricToKeyMap: { [key: string]: keyof AlgorithmData['comparison'] } = {
 
 export const comparisonData = Object.keys(metricToKeyMap).map(metric => {
   const key = metricToKeyMap[metric];
-  return {
-    metric,
-    "NewtonRaphson": algorithms["newton-raphson"].comparison[key],
-    "GaussSeidel": algorithms["gauss-seidel"].comparison[key],
-    "DCPowerFlow": algorithms["dc-power-flow"].comparison[key],
-    "FastDecoupled": algorithms["fast-decoupled"].comparison[key],
-  };
+  const item: { metric: string; [key: string]: string | number } = { metric };
+  for (const algoKey in algorithms) {
+    const algoName = algoKey.replace(/-/g, "");
+    item[algoName] = algorithms[algoKey].comparison[key as keyof AlgorithmData['comparison']];
+  }
+  return item;
 });
