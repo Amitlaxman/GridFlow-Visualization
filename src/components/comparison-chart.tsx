@@ -8,11 +8,17 @@ import { ChartTooltip, ChartTooltipContent, ChartContainer, ChartLegend, ChartLe
 const chartConfig = {
   "Newton-Raphson": { label: "Newton-Raphson", color: "hsl(210 80% 60%)" },
   "Gauss-Seidel": { label: "Gauss-Seidel", color: "hsl(200 90% 55%)" },
-  "DC Power Flow": { label: "DC Power Flow", color: "hsl(190 100% 75%)" },
-  "Fast Decoupled": { label: "Fast Decoupled", color: "hsl(180 95% 85%)" },
+  "DCPowerFlow": { label: "DC Power Flow", color: "hsl(190 100% 75%)" },
+  "FastDecoupled": { label: "Fast Decoupled", color: "hsl(180 95% 85%)" },
 };
 
 export function ComparisonChart() {
+  const adjustedComparisonData = comparisonData.map(d => ({
+    ...d,
+    "DCPowerFlow": d["DC Power Flow"],
+    "FastDecoupled": d["Fast Decoupled"]
+  }));
+
   return (
     <Card className="bg-transparent border-none shadow-none">
       <CardHeader className="p-2">
@@ -20,7 +26,7 @@ export function ComparisonChart() {
       </CardHeader>
       <CardContent className="p-2">
         <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-            <BarChart accessibilityLayer data={comparisonData} margin={{ top: 20, right: 0, left: -20, bottom: 5 }}>
+            <BarChart accessibilityLayer data={adjustedComparisonData} margin={{ top: 20, right: 0, left: -20, bottom: 5 }}>
                 <CartesianGrid vertical={false} />
                 <XAxis
                     dataKey="metric"
@@ -42,8 +48,8 @@ export function ComparisonChart() {
                 <ChartLegend content={<ChartLegendContent />} />
                 <Bar dataKey="Newton-Raphson" fill="var(--color-Newton-Raphson)" radius={4} />
                 <Bar dataKey="Gauss-Seidel" fill="var(--color-Gauss-Seidel)" radius={4} />
-                <Bar dataKey="DC Power Flow" fill="var(--color-DC Power Flow)" radius={4} />
-                <Bar dataKey="Fast Decoupled" fill="var(--color-Fast Decoupled)" radius={4} />
+                <Bar dataKey="DCPowerFlow" fill="var(--color-DCPowerFlow)" radius={4} />
+                <Bar dataKey="FastDecoupled" fill="var(--color-FastDecoupled)" radius={4} />
             </BarChart>
         </ChartContainer>
       </CardContent>
