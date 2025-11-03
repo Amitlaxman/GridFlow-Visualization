@@ -128,13 +128,20 @@ export const algorithms: { [key: string]: AlgorithmData } = {
   },
 };
 
-export const comparisonData = ["Speed", "Accuracy", "Convergence", "Power Loss"].map(metric => {
-  const key = metric.split(' ')[0].toLowerCase() as keyof AlgorithmData['comparison'];
+const metricToKeyMap: { [key: string]: keyof AlgorithmData['comparison'] } = {
+  "Speed": "speed",
+  "Accuracy": "accuracy",
+  "Convergence": "convergence",
+  "Power Loss": "powerLoss"
+};
+
+export const comparisonData = Object.keys(metricToKeyMap).map(metric => {
+  const key = metricToKeyMap[metric];
   return {
     metric,
-    "Newton-Raphson": algorithms["newton-raphson"].comparison[key],
-    "Gauss-Seidel": algorithms["gauss-seidel"].comparison[key],
-    "DC Power Flow": algorithms["dc-power-flow"].comparison[key],
-    "Fast Decoupled": algorithms["fast-decoupled"].comparison[key],
+    "NewtonRaphson": algorithms["newton-raphson"].comparison[key],
+    "GaussSeidel": algorithms["gauss-seidel"].comparison[key],
+    "DCPowerFlow": algorithms["dc-power-flow"].comparison[key],
+    "FastDecoupled": algorithms["fast-decoupled"].comparison[key],
   };
 });
