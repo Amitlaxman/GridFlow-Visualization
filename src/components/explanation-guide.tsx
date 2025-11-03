@@ -8,8 +8,14 @@ import {
 } from "@/components/ui/accordion"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { HelpCircle, Zap, Factory, Cog } from "lucide-react"
+import { AlgorithmData } from "@/lib/grid-data";
 
-export function ExplanationGuide() {
+type ExplanationGuideProps = {
+  selectedAlgorithm: AlgorithmData;
+};
+
+
+export function ExplanationGuide({ selectedAlgorithm }: ExplanationGuideProps) {
   return (
     <Card className="bg-transparent border-none shadow-none">
       <CardHeader className="p-2">
@@ -19,7 +25,7 @@ export function ExplanationGuide() {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-2">
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion type="single" collapsible className="w-full" defaultValue="item-4">
           <AccordionItem value="item-1">
             <AccordionTrigger>What do the elements represent?</AccordionTrigger>
             <AccordionContent>
@@ -65,6 +71,13 @@ export function ExplanationGuide() {
               <p className="mt-2">
                 Each algorithm offers a different trade-off between speed, accuracy, and computational resources, making them suitable for different scenarios.
               </p>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="item-4">
+            <AccordionTrigger>Why does the visualization change?</AccordionTrigger>
+            <AccordionContent className="text-sm text-muted-foreground pl-2 space-y-2">
+              <h4 className="font-semibold text-foreground">Current Algorithm: {selectedAlgorithm.name}</h4>
+              <p>{selectedAlgorithm.visualizationBehavior}</p>
             </AccordionContent>
           </AccordionItem>
         </Accordion>

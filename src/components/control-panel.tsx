@@ -69,7 +69,7 @@ export function ControlPanel({
                 <Separator />
                 <ComparisonChart />
                 <Separator />
-                <ExplanationGuide />
+                <ExplanationGuide selectedAlgorithm={currentAlgorithm} />
             </div>
 
           </Tabs>

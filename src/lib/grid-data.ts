@@ -25,6 +25,7 @@ export type AlgorithmData = {
   name: string;
   description: string;
   tradeoffs: string;
+  visualizationBehavior: string;
   metrics: {
     convergenceTime: string;
     iterations: number;
@@ -86,6 +87,7 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     name: "Newton-Raphson",
     description: "A powerful and fast-converging iterative method for solving non-linear power flow equations.",
     tradeoffs: "Excellent accuracy and convergence speed for well-behaved systems, but can be computationally intensive and may struggle with poor initial guesses.",
+    visualizationBehavior: "Notice the smooth and rapid stabilization of voltages and flows. The few iterations reflect its efficiency. The particle speed is high, and line widths change decisively as it quickly finds the solution.",
     metrics: { convergenceTime: "0.15s", iterations: 3, totalPowerLoss: "1.8%", voltageDeviation: "±1.5%" },
     comparison: { speed: 8, accuracy: 9, convergence: 7, powerLoss: 7 },
     simulationSteps: [
@@ -98,6 +100,7 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     name: "Gauss-Seidel",
     description: "A simpler iterative method that is less memory-intensive than Newton-Raphson.",
     tradeoffs: "Simpler to implement and requires less memory. However, it has slower convergence, especially in large systems, and can be unstable.",
+    visualizationBehavior: "This algorithm takes many more iterations to converge. You'll see the voltages and flows change more gradually with each step. The particles move slower, representing the slower computational process.",
     metrics: { convergenceTime: "0.78s", iterations: 12, totalPowerLoss: "2.1%", voltageDeviation: "±2.5%" },
     comparison: { speed: 4, accuracy: 6, convergence: 5, powerLoss: 5 },
     simulationSteps: Array.from({ length: 12 }, (_, i) => ({
@@ -109,6 +112,7 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     name: "DC Power Flow",
     description: "A linearized, non-iterative model that provides a fast approximation of real power flows.",
     tradeoffs: "Extremely fast and always converges. It's ideal for contingency analysis and real-time markets. Ignores reactive power and losses, so it's less accurate.",
+    visualizationBehavior: "This is a single-step, non-iterative approximation. The 'Iterate' button does nothing after the first click. It provides an instant but less accurate snapshot of power flows, ignoring voltage stability and losses, which is why the voltage is uniform and the 'p.u.' values are stable.",
     metrics: { convergenceTime: "0.01s", iterations: 1, totalPowerLoss: "N/A", voltageDeviation: "N/A" },
     comparison: { speed: 10, accuracy: 2, convergence: 10, powerLoss: 10 },
     simulationSteps: [
@@ -119,6 +123,7 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     name: "Fast Decoupled",
     description: "A simplified version of Newton-Raphson that decouples real and reactive power calculations.",
     tradeoffs: "Faster per iteration and requires less memory than full Newton-Raphson. Very reliable for typical transmission systems, but less accurate for systems with high R/X ratios.",
+    visualizationBehavior: "This is a compromise. It converges faster than Gauss-Seidel but not as quickly as Newton-Raphson. The flow animations are moderately fast, and the system stabilizes in a handful of iterations.",
     metrics: { convergenceTime: "0.25s", iterations: 5, totalPowerLoss: "1.9%", voltageDeviation: "±2.0%" },
     comparison: { speed: 7, accuracy: 7, convergence: 8, powerLoss: 6 },
     simulationSteps: Array.from({ length: 5 }, (_, i) => ({
