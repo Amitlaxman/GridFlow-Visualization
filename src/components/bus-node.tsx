@@ -53,7 +53,7 @@ export function BusNode({ bus, voltage }: BusNodeProps) {
         }}
       />
       <Icon
-        className="text-primary-foreground transition-colors duration-300"
+        className="text-foreground transition-colors duration-300"
         x={-12}
         y={-12}
         size={24}
