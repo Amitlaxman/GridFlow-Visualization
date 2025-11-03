@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
@@ -6,10 +7,10 @@ import { comparisonData } from "@/lib/grid-data";
 import { ChartTooltip, ChartTooltipContent, ChartContainer, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 
 const chartConfig = {
-  "NewtonRaphson": { label: "Newton-Raphson", color: "hsl(210 80% 60%)" },
-  "GaussSeidel": { label: "Gauss-Seidel", color: "hsl(200 90% 55%)" },
-  "DCPowerFlow": { label: "DC Power Flow", color: "hsl(190 100% 75%)" },
-  "FastDecoupled": { label: "Fast Decoupled", color: "hsl(180 95% 85%)" },
+  NewtonRaphson: { label: "Newton-Raphson", color: "hsl(210 80% 60%)" },
+  GaussSeidel: { label: "Gauss-Seidel", color: "hsl(200 90% 55%)" },
+  DCPowerFlow: { label: "DC Power Flow", color: "hsl(190 100% 75%)" },
+  FastDecoupled: { label: "Fast Decoupled", color: "hsl(180 95% 85%)" },
 };
 
 export function ComparisonChart() {

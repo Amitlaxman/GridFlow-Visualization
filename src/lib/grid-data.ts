@@ -1,3 +1,4 @@
+
 export type Bus = {
   id: string;
   x: number;
@@ -56,9 +57,9 @@ export const grid: GridData = {
     { id: "L3", from: "B2", to: "B4" },
     { id: "L4", from: "B4", to: "B5" },
     { id: "L5", from: "B5", to: "B6" },
-    { id: "L6", from: "B6", to: "B1" },
+    { id: "L6", from: "B1", to: "B6" },
     { id: "L7", from: "B2", to: "B6" },
-    { id: "L8", from: "B3", to: "B5" },
+    { id: "L8", from: "B2", to: "B5" },
   ],
 };
 
@@ -68,9 +69,9 @@ const generateFlows = (multiplier: number) => ({
   L3: { flow: 2 * multiplier, direction: "to-from" }, // Gen B4 -> Bus B2
   L4: { flow: 6 * multiplier, direction: "from-to" }, // Gen B4 -> Load B5
   L5: { flow: 4 * multiplier, direction: "to-from" }, // Bus B6 -> Load B5
-  L6: { flow: 3 * multiplier, direction: "to-from" }, // Bus B6 -> Gen B1 (Loop)
+  L6: { flow: 3 * multiplier, direction: "from-to" }, // Gen B1 -> Bus B6
   L7: { flow: 2 * multiplier, direction: "from-to" }, // Bus B2 -> Bus B6
-  L8: { flow: 1 * multiplier, direction: "from-to" }, // Load B3 -> Load B5 (Inter-load)
+  L8: { flow: 1 * multiplier, direction: "from-to" }, // Bus B2 -> Load B5
 });
 
 
@@ -145,7 +146,7 @@ export const comparisonData = Object.keys(metricToKeyMap).map(metric => {
   const key = metricToKeyMap[metric];
   const item: { metric: string; [key: string]: string | number } = { metric };
   for (const algoKey in algorithms) {
-    const algoName = algoKey.replace(/-/g, "");
+    const algoName = algoKey.charAt(0).toUpperCase() + algoKey.slice(1).replace(/-/g, "");
     item[algoName] = algorithms[algoKey].comparison[key as keyof AlgorithmData['comparison']];
   }
   return item;
