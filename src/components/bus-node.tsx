@@ -23,6 +23,7 @@ export function BusNode({ bus, voltage }: BusNodeProps) {
     <g
       transform={`translate(${bus.x}, ${bus.y})`}
       className="transition-transform duration-500 ease-in-out hover:scale-110"
+      style={{ transformOrigin: 'center', transformBox: 'fill-box' }}
     >
       <defs>
         <style>
