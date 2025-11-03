@@ -44,6 +44,58 @@ function calculateLineFlows(grid: GridData, voltages: { [key: string]: number })
 // --- Algorithm Implementations ---
 
 /**
+ * A simplified Newton-Raphson implementation.
+ * This version uses a pseudo-Jacobian to simulate the fast convergence.
+ */
+export const runNewtonRaphson: AlgorithmImplementation = (grid, currentState) => {
+  const state = currentState ? JSON.parse(JSON.stringify(currentState)) : getInitialState(grid);
+  if (state.isConverged) return state;
+
+  const newVoltages = { ...state.busVoltages };
+  let maxChange = 0;
+
+  grid.buses.forEach(bus => {
+    if (bus.type === 'generator') return; // Skip slack/PV buses
+
+    let powerMismatch = bus.power ?? 0;
+    
+    // Calculate injected power based on current voltages
+    grid.lines.forEach(line => {
+        const admittance = 1 / line.impedance;
+        if (line.from === bus.id) {
+            powerMismatch += (state.busVoltages[bus.id] - state.busVoltages[line.to]) * admittance * state.busVoltages[bus.id];
+        }
+        if (line.to === bus.id) {
+            powerMismatch += (state.busVoltages[bus.id] - state.busVoltages[line.from]) * admittance * state.busVoltages[bus.id];
+        }
+    });
+
+    // Simplified Jacobian diagonal element (derivative approximation)
+    const jacobianDiagonal = 2 * (bus.power ?? 0) / (state.busVoltages[bus.id] || 1.0);
+    const voltageChange = -powerMismatch / (jacobianDiagonal || 1.0);
+
+    const newVoltage = state.busVoltages[bus.id] + voltageChange * 0.5; // Apply with damping
+    const finalVoltage = Math.max(0.9, Math.min(1.1, newVoltage || 1.0));
+
+    const change = Math.abs(finalVoltage - state.busVoltages[bus.id]);
+    if (change > maxChange) {
+      maxChange = change;
+    }
+    newVoltages[bus.id] = finalVoltage;
+  });
+
+  const isConverged = maxChange < CONVERGENCE_THRESHOLD;
+
+  return {
+    busVoltages: newVoltages,
+    lineFlows: calculateLineFlows(grid, newVoltages),
+    isConverged: isConverged,
+    iteration: state.iteration + 1,
+  };
+};
+
+
+/**
  * A simplified Gauss-Seidel implementation.
  * It iteratively solves for bus voltages.
  */
@@ -150,6 +202,56 @@ export const runDCPowerFlow: AlgorithmImplementation = (grid, currentState) => {
         iteration: 1,
     };
 }
+
+/**
+ * Simplified Fast Decoupled implementation.
+ * Similar to Newton-Raphson but assumes a constant, simplified Jacobian.
+ */
+export const runFastDecoupled: AlgorithmImplementation = (grid, currentState) => {
+    const state = currentState ? JSON.parse(JSON.stringify(currentState)) : getInitialState(grid);
+    if (state.isConverged) return state;
+
+    const newVoltages = { ...state.busVoltages };
+    let maxChange = 0;
+
+    grid.buses.forEach(bus => {
+        if (bus.type === 'generator') return;
+
+        let powerMismatch = bus.power ?? 0;
+        
+        grid.lines.forEach(line => {
+            const admittance = 1 / line.impedance;
+            if (line.from === bus.id) {
+                powerMismatch += (state.busVoltages[bus.id] - state.busVoltages[line.to]) * admittance * state.busVoltages[bus.id];
+            }
+            if (line.to === bus.id) {
+                powerMismatch += (state.busVoltages[bus.id] - state.busVoltages[line.from]) * admittance * state.busVoltages[bus.id];
+            }
+        });
+        
+        // The "fast decoupled" simplification: use a fixed, less sensitive value for the update
+        const constantJacobianEffect = 2.0 * (bus.power ?? 0);
+        const voltageChange = -powerMismatch / (constantJacobianEffect || 1.0);
+
+        const newVoltage = state.busVoltages[bus.id] + voltageChange * 0.7; // Damping
+        const finalVoltage = Math.max(0.9, Math.min(1.1, newVoltage || 1.0));
+        
+        const change = Math.abs(finalVoltage - state.busVoltages[bus.id]);
+        if (change > maxChange) {
+            maxChange = change;
+        }
+        newVoltages[bus.id] = finalVoltage;
+    });
+
+    const isConverged = maxChange < CONVERGENCE_THRESHOLD;
+
+    return {
+        busVoltages: newVoltages,
+        lineFlows: calculateLineFlows(grid, newVoltages),
+        isConverged: isConverged,
+        iteration: state.iteration + 1,
+    };
+};
 
 
 /**

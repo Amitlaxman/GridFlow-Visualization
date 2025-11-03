@@ -53,7 +53,7 @@ export type AlgorithmData = {
   maxIterations: number;
 };
 
-import { runGaussSeidel, runDCPowerFlow, runStub } from './algorithms';
+import { runGaussSeidel, runDCPowerFlow, runNewtonRaphson, runFastDecoupled } from './algorithms';
 
 export const grid: GridData = {
   buses: [
@@ -84,8 +84,8 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     visualizationBehavior: "Notice the smooth and rapid stabilization of voltages and flows. The few iterations reflect its efficiency. The particle speed is high, and line widths change decisively as it quickly finds the solution.",
     metrics: { convergenceTime: "0.15s", iterations: 3, totalPowerLoss: "1.8%", voltageDeviation: "±1.5%" },
     comparison: { speed: 8, accuracy: 9, convergence: 7, powerLoss: 7 },
-    run: runStub,
-    maxIterations: 3,
+    run: runNewtonRaphson,
+    maxIterations: 5,
   },
   "gauss-seidel": {
     name: "Gauss-Seidel",
@@ -114,8 +114,8 @@ export const algorithms: { [key: string]: AlgorithmData } = {
     visualizationBehavior: "This is a compromise. It converges faster than Gauss-Seidel but not as quickly as Newton-Raphson. The flow animations are moderately fast, and the system stabilizes in a handful of iterations.",
     metrics: { convergenceTime: "0.25s", iterations: 5, totalPowerLoss: "1.9%", voltageDeviation: "±2.0%" },
     comparison: { speed: 7, accuracy: 7, convergence: 8, powerLoss: 6 },
-    run: runStub,
-    maxIterations: 5,
+    run: runFastDecoupled,
+    maxIterations: 8,
   },
 };
 
@@ -132,6 +132,8 @@ export const comparisonData = Object.keys(metricToKeyMap).map(metric => {
   for (const algoKey in algorithms) {
     const algoData = algorithms[algoKey];
     let name = algoData.name.replace(/-/g, "").replace(/\s/g, '');
+    if (name === 'DCPowerFlow') name = 'DCPowerFlow';
+    if (name === 'FastDecoupled') name = 'FastDecoupled';
     item[name] = algoData.comparison[key as keyof AlgorithmData['comparison']];
   }
   return item;
