@@ -27,7 +27,7 @@ export default function Home() {
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-background text-foreground">
       <header className="absolute top-4 left-4 z-10">
-        <h1 className="text-2xl font-bold font-headline text-primary-foreground bg-black/30 p-2 rounded-lg backdrop-blur-sm">
+        <h1 className="text-2xl font-bold font-headline text-white bg-black/30 p-2 rounded-lg backdrop-blur-sm">
           Interactive Grid Visualizer
         </h1>
       </header>
