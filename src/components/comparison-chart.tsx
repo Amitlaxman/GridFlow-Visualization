@@ -6,10 +6,10 @@ import { comparisonData } from "@/lib/grid-data";
 import { ChartTooltip, ChartTooltipContent, ChartContainer, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 
 const chartConfig = {
-  "Newton-Raphson": { label: "Newton-Raphson", color: "hsl(var(--chart-1))" },
-  "Gauss-Seidel": { label: "Gauss-Seidel", color: "hsl(var(--chart-2))" },
-  "DC Power Flow": { label: "DC Power Flow", color: "hsl(var(--chart-3))" },
-  "Fast Decoupled": { label: "Fast Decoupled", color: "hsl(var(--chart-4))" },
+  "Newton-Raphson": { label: "Newton-Raphson", color: "hsl(210 80% 60%)" },
+  "Gauss-Seidel": { label: "Gauss-Seidel", color: "hsl(200 90% 55%)" },
+  "DC Power Flow": { label: "DC Power Flow", color: "hsl(190 100% 50%)" },
+  "Fast Decoupled": { label: "Fast Decoupled", color: "hsl(180 95% 45%)" },
 };
 
 export function ComparisonChart() {
