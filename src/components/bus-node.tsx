@@ -24,7 +24,7 @@ export function BusNode({ bus, voltage }: BusNodeProps) {
       case "generator":
         return (
           <>
-            <text x={0} y={62} textAnchor="middle" fill="hsl(var(--accent-foreground))" className="text-xs font-semibold">
+            <text x={0} y={62} textAnchor="middle" fill="hsl(var(--accent))" className="text-xs font-semibold">
               Supply
             </text>
             <text x={0} y={76} textAnchor="middle" fill="hsl(var(--muted-foreground))" className="text-xs font-mono">
