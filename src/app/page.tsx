@@ -43,6 +43,7 @@ export default function Home() {
           iteration={iteration}
           maxIterations={maxIterations}
           isRunning={isRunning}
+          isConverged={currentSimState.isConverged}
         />
       </aside>
     </div>
